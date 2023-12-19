@@ -1,8 +1,9 @@
 from typing import Optional
 
 import uvicorn
-from fastapi import FastAPI, Path, Query
+from fastapi import FastAPI, Path, Query, HTTPException
 from pydantic import BaseModel, Field
+from starlette import status
 
 app = FastAPI()
 
@@ -40,7 +41,7 @@ class BookRequest(BaseModel):
                 "author": "Kim",
                 "description": "Description 1234",
                 "rating": 3,
-                "published_date": 2023
+                "published_date": 2023,
             }
         }
 
@@ -55,19 +56,21 @@ BOOKS = [
 ]
 
 
-@app.get("/books")
+@app.get("/books", status_code=status.HTTP_200_OK)
 async def read_all_books():
     return BOOKS
 
 
-@app.get("/books/{book_id}")
-async def read_book(book_id: int = Path(gt=0, le=len(BOOKS))):
+@app.get("/books/{book_id}", status_code=status.HTTP_200_OK)
+async def read_book(book_id: int = Path(gt=0)):
     for book in BOOKS:
         if book.id == book_id:
             return book
 
+    raise HTTPException(status_code=404, detail="Book not found")
 
-@app.get("/books/")
+
+@app.get("/books/", status_code=status.HTTP_200_OK)
 async def read_book_by_rating(book_rating: int = Query(gt=0, lt=6)):
     books_return = []
 
@@ -78,7 +81,7 @@ async def read_book_by_rating(book_rating: int = Query(gt=0, lt=6)):
     return books_return
 
 
-@app.get("/books/publish/")
+@app.get("/books/publish/", status_code=status.HTTP_200_OK)
 async def read_book_publish_date(publish_date: int = Query(gt=1999, lt=2031)):
     books_return = []
 
@@ -89,7 +92,7 @@ async def read_book_publish_date(publish_date: int = Query(gt=1999, lt=2031)):
     return books_return
 
 
-@app.post("/create-book")
+@app.post("/create-book", status_code=status.HTTP_201_CREATED)
 async def create_book(book_request: BookRequest):
     # ** 은 dictionary 를 키워드 형태로 변환해줍니다.
     # book_request 유효성검사는 아래 코드가 실행전에 진행됩니다.
@@ -103,21 +106,31 @@ def find_book_id(book: Book):
     return book
 
 
-@app.put("/books/update_book")
+@app.put("/books/update_book", status_code=status.HTTP_204_NO_CONTENT)
 async def update_book(book_request: BookRequest):
+    book_changed = False
+
     for i in range(len(BOOKS)):
         if BOOKS[i].id == book_request.id:
             BOOKS[i] = book_request
+            book_changed = True
 
-            return BOOKS[i]
+    if not book_changed:
+        raise HTTPException(status_code=404, detail="Book not found")
 
 
-@app.delete("/books/{book_id}")
+@app.delete("/books/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_book(book_id: int = Path(gt=0, le=len(BOOKS))):
+    book_changed = False
+
     for i in range(len(BOOKS)):
         if BOOKS[i].id == book_id:
             BOOKS.pop(i)
+            book_changed = True
             break
+
+    if not book_changed:
+        raise HTTPException(status_code=404, detail="Book not found")
 
 
 if __name__ == "__main__":
