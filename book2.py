@@ -30,6 +30,17 @@ class BookRequest(BaseModel):
     description: str = Field(min_length=1, max_length=100)
     rating: int = Field(gt=0, lt=6)
 
+    # Example Value 값을 아래 Config 에서 지정해줄 수 있습니다.
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "title": "A new book",
+                "author": "Kim",
+                "description": "Description 1234",
+                "rating": 3,
+            }
+        }
+
 
 BOOKS = [
     Book(1, "Title One", "Author One", "Description One", 5),
