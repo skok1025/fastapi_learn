@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
@@ -22,7 +24,7 @@ class Book:
 
 
 class BookRequest(BaseModel):
-    id: int
+    id: Optional[int] = None  # 선택적인 항목
     title: str = Field(min_length=3)
     author: str = Field(min_length=1)
     description: str = Field(min_length=1, max_length=100)
@@ -49,7 +51,13 @@ async def create_book(book_request: BookRequest):
     # ** 은 dictionary 를 키워드 형태로 변환해줍니다.
     # book_request 유효성검사는 아래 코드가 실행전에 진행됩니다.
     new_book = Book(**book_request.model_dump())
-    BOOKS.append(new_book)
+    BOOKS.append(find_book_id(new_book))
+
+
+def find_book_id(book: Book):
+    book.id = 1 if len(BOOKS) == 0 else BOOKS[-1].id + 1
+
+    return book
 
 
 if __name__ == "__main__":
