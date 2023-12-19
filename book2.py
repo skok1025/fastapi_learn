@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI
+from pydantic import BaseModel, Field
+
 import uvicorn
 
 app = FastAPI()
@@ -19,6 +21,14 @@ class Book:
         self.rating = rating
 
 
+class BookRequest(BaseModel):
+    id: int
+    title: str = Field(min_length=3)
+    author: str = Field(min_length=1)
+    description: str = Field(min_length=1, max_length=100)
+    rating: int = Field(gt=0, lt=6)
+
+
 BOOKS = [
     Book(1, "Title One", "Author One", "Description One", 5),
     Book(2, "Title Two", "Author Two", "Description Two", 4),
@@ -35,8 +45,11 @@ async def read_all_books():
 
 
 @app.post("/create-book")
-async def create_book(book_request=Body()):
-    BOOKS.append(book_request)
+async def create_book(book_request: BookRequest):
+    # ** 은 dictionary 를 키워드 형태로 변환해줍니다.
+    # book_request 유효성검사는 아래 코드가 실행전에 진행됩니다.
+    new_book = Book(**book_request.model_dump())
+    BOOKS.append(new_book)
 
 
 if __name__ == "__main__":
