@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Body
+import uvicorn
 
 app = FastAPI()
 
@@ -81,3 +82,7 @@ async def read_books_by_author(author_name: str):
             books_return.append(book)
 
     return books_return
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)
