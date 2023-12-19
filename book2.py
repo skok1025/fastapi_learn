@@ -1,7 +1,7 @@
 from typing import Optional
 
 import uvicorn
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, Query
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -68,7 +68,7 @@ async def read_book(book_id: int = Path(gt=0, le=len(BOOKS))):
 
 
 @app.get("/books/")
-async def read_book_by_rating(book_rating: int):
+async def read_book_by_rating(book_rating: int = Query(gt=0, lt=6)):
     books_return = []
 
     for book in BOOKS:
@@ -78,8 +78,8 @@ async def read_book_by_rating(book_rating: int):
     return books_return
 
 
-@app.get("/books-by-date/")
-async def read_book_publish_date(publish_date: int):
+@app.get("/books/publish/")
+async def read_book_publish_date(publish_date: int = Query(gt=1999, lt=2031)):
     books_return = []
 
     for book in BOOKS:
@@ -118,7 +118,6 @@ async def delete_book(book_id: int = Path(gt=0, le=len(BOOKS))):
         if BOOKS[i].id == book_id:
             BOOKS.pop(i)
             break
-
 
 
 if __name__ == "__main__":
