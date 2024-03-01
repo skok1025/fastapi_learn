@@ -11,7 +11,6 @@ from ToDoApp.database import SessionLocal
 from ToDoApp.models import Users
 from passlib.context import CryptContext
 
-from ToDoApp.routers.todos import db_dependency
 from jose import jwt, JWTError
 
 router = APIRouter(
@@ -25,6 +24,15 @@ ALGORITHM = "HS256"
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+db_dependency = Annotated[Session, Depends(get_db)]
 
 class CreateUserRequest(BaseModel):
     username: str
@@ -107,12 +115,9 @@ async def login_for_access_token(
         )
 
     token = create_access_token(user.username, user.id, timedelta(minutes=20))
+
+    print(f'- created access_token: {token}')
     return {"access_token": token, "token_type": "bearer"}
-
-
-@router.get("/auth")
-async def get_user():
-    return {"user": "authenticated"}
 
 
 def get_db():
