@@ -22,6 +22,9 @@ ALGORITHM = "HS256"
 
 # pip install passlib[bcrypt]
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# tokenUrl은 token을 발급받을 endpoint를 지정한거구요.
+# 추가로 OAuth2PasswordBearer 가 각 API 요청마다 포함된 요청헤더 "Authorization" 에서 Bearer token를 가져온다고 합니다.
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 def get_db():
@@ -68,6 +71,7 @@ def create_access_token(username: str, user_id: int, expires_delta: timedelta):
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
+    # token 을 검증하는 함수이자, 정보를 가공하는 함수
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
