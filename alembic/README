@@ -1,0 +1,19 @@
+## Alembic 사용법
+1) alembic upgrade
+```
+$ alembic upgrade {$revision_id}
+```
+
+2) alembic downgrade
+```
+$ alembic downgrade -1
+```
+
+
+## Alembic 수정이력
+
+Revision ID: bd846e8787fb
+Revises: 
+Create Date: 2024-08-26 13:50:42.800880
+message: add phone number column to users table
+

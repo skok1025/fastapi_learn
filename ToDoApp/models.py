@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, Boolean, VARCHAR, ForeignKey
 
-from database import Base
+from .database import Base
 
 
 class Users(Base):
@@ -14,6 +14,7 @@ class Users(Base):
     hashed_password = Column(VARCHAR(255))
     is_active = Column(Boolean, default=True)
     role = Column(VARCHAR(255))
+    phone_number = Column(VARCHAR(255))
 
 class Todos(Base):
     __tablename__ = "todos"
