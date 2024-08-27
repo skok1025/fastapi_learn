@@ -33,7 +33,7 @@ def test_list():
     any_list = [False, False]
 
     assert 1 in num_list
-    assert 7 not in num_list
+    assert 6 not in num_list
     assert all(num_list)
     assert not any(any_list)
 
