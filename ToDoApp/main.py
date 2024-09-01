@@ -3,11 +3,16 @@ from fastapi import FastAPI
 
 from ToDoApp import models
 from ToDoApp.routers import auth, todos, admin, users
-from database import engine
+from ToDoApp.database import engine
 
 app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
+
+
+@app.get("/healthy")
+async def healthy():
+    return {"message": "healthy"}
 
 app.include_router(auth.router)
 app.include_router(todos.router)
